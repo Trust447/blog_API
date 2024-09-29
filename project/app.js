@@ -6,9 +6,12 @@ import postRouter from "./api/users/posts.router.js";
 import dotenv from 'dotenv';
 dotenv.config();  
 
-console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-console.log('SERVER_PORT:', process.env.SERVER_PORT);
+// console.log('DB_USER:', process.env.DB_USER);
+// console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+// console.log('SERVER_PORT:', process.env.SERVER_PORT);
+// console.log('database:', process.env.MYSQL_DB,);
+// console.log('port:', process.env.DB_PORT,);
+
 
 const swaggerDocument = YAML.load('./docs/swagger.yaml');
 

@@ -4,7 +4,7 @@ import {
     getUserById, 
     updateUser, 
     deleteUser,
-    getuserByUserEmail,
+    getUserByEmail,
 } from "./user.service.js";
 
 import { genSaltSync, hashSync, compareSync } from "bcrypt";
@@ -48,7 +48,7 @@ export const createUser = (req, res) => {
             });
             
         }
-        return res.status(201).json({
+        return res.status(200).json({
             success: 1,
             data: results
         });
@@ -71,13 +71,19 @@ export const getAllUsers = (req, res) => {
                 message: "Database connection error"
             });
         }
+        if (result.length === 0) {
+            return res.status(404).json({
+                success: 0,
+                message: "No users found"
+            });
+        }
         return res.status(200).json({
             success: 1,
             data: result
         });
     });
-    
-}
+};
+
 
 
 
@@ -198,44 +204,42 @@ export const deleteUserById =  (req, res) => {
  * @param {Object} req - Express request object containing user email and password.
  * @param {Object} res - Express response object for sending feedback.
  */
-export const login = (req, res) => {
+export const login = async (req, res) => {
     const { email, password } = req.body;
+    console.log('Login request received:', req.body);
 
-    getuserByUserEmail(email, (err, results) => {
-        if (err) {
-            return res.status(500).json({
+    try {
+        const user = await getUserByEmail({ email }); // Make sure this call is async
+        console.log('Results from getUserByEmail:', user);
+
+        if (!user) {
+            return res.status(404).json({
                 success: 0,
-                message: "Database connection error"
+                data: "invalid email or password"
             });
         }
 
-        if(!results) {
-         return res.status(404).json({
-             success: 0,
-             data: "invalid email or password" 
-            });
-        }
-
-        const isPasswordValid = compareSync(password, results.password);
-
-        if(isPasswordValid) {
-            results.password = undefined;
-            const token = sign({result: results}, process.env.QUE, {
-                expiresIn: "1h"
-            });
-
+        const isPasswordValid = compareSync(password, user.password);
+        if (isPasswordValid) {
+            user.password = undefined;
+            const token = sign({ result: user }, process.env.QUE, { expiresIn: "1h" });
             return res.status(200).json({
-                success:1,
+                success: 1,
                 message: "login successfully",
                 token: token
             });
-
         } else {
             return res.status(401).json({
                 success: 0,
                 data: "invalid email or password"
             });
         }
-    });
-}
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({
+            success: 0,
+            message: "An error occurred"
+        });
+    }
+};
 
