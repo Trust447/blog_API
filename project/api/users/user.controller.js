@@ -7,9 +7,9 @@ import {
     getUserByEmail,
 } from "./user.service.js";
 
-import { genSaltSync, hashSync, compareSync } from "bcrypt";
-import jwt from "jsonwebtoken";
-const { sign,verify } = jwt;
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
 
 
 /**
@@ -24,13 +24,13 @@ export const createUser = (req, res) => {
 
     if (!firstName || !lastName || !email || !password) {
         return res.status(400).json({
-            success: 0, // Fixed spelling
+            success: 0,
             message: "All fields are required"
         });
     }
 
-    const salt = genSaltSync(10);
-    const hashedPassword = hashSync(password, salt);
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
 
     const user = {
         firstName,
@@ -41,14 +41,15 @@ export const createUser = (req, res) => {
 
     createNewUsers(user, (err, results) => {
         if (err) {
-            console.error(err); // Log the error for debugging
+            // Log the error for debugging
+            console.error(err); 
             return res.status(500).json({
                 success: 0,
                 message: "Database connection error"
             });
             
         }
-        return res.status(200).json({
+        return res.status(201).json({
             success: 1,
             data: results
         });
@@ -130,8 +131,12 @@ export const getUserByUserId = (req, res) => {
 export const userUpdate = (req, res) => {
     const body = req.body;
     const id = req.params.id;
-    const salt = genSaltSync(10);
-    body.password = hashSync(body.password, salt);
+
+    // Check if password is being updated
+    if (body.password) {
+        const salt = bcrypt.genSaltSync(10); // Generate salt
+        body.password = bcrypt.hashSync(body.password, salt); 
+    }
 
     updateUser(id, body, (err, result) => {
         if (err) {
@@ -141,7 +146,7 @@ export const userUpdate = (req, res) => {
             });
         }
         
-        if (result.affectedRows === 0) { // Check if any rows were affected
+        if (result.affectedRows === 0) { 
             return res.status(404).json({
                 success: 0,
                 message: "User not found or update not successful"
@@ -153,9 +158,8 @@ export const userUpdate = (req, res) => {
             message: "User updated successfully",
             data: {
                 id, 
-                body 
+                ...body 
             }
-            
         });
     });
 };
@@ -196,42 +200,48 @@ export const deleteUserById =  (req, res) => {
 
 
 
-
-
 /**
  * User login
  * @route POST /users/login
  * @param {Object} req - Express request object containing user email and password.
  * @param {Object} res - Express response object for sending feedback.
  */
+
 export const login = async (req, res) => {
     const { email, password } = req.body;
     console.log('Login request received:', req.body);
 
     try {
-        const user = await getUserByEmail({ email }); // Make sure this call is async
-        console.log('Results from getUserByEmail:', user);
+        const user = await getUserByEmail({ email });
+        console.log('Retrieved user:', user);
 
         if (!user) {
+            console.log('User not found');
             return res.status(404).json({
                 success: 0,
-                data: "invalid email or password"
+                data: "Invalid email or password"
             });
         }
 
-        const isPasswordValid = compareSync(password, user.password);
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
+        console.log('Password valid:', isPasswordValid);
+
         if (isPasswordValid) {
-            user.password = undefined;
-            const token = sign({ result: user }, process.env.QUE, { expiresIn: "1h" });
+        
+            // keep password hidden
+            user.password = undefined; 
+            const token = jwt.sign({ result: user }, process.env.QUE, { expiresIn: "1h" });
+            console.log('Login successful, token generated:', token);
             return res.status(200).json({
                 success: 1,
-                message: "login successfully",
+                message: "Login successful",
                 token: token
             });
         } else {
+            console.log('Invalid password');
             return res.status(401).json({
                 success: 0,
-                data: "invalid email or password"
+                data: "Invalid email or password"
             });
         }
     } catch (error) {
@@ -242,4 +252,3 @@ export const login = async (req, res) => {
         });
     }
 };
-

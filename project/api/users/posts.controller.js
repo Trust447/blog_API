@@ -1,40 +1,37 @@
-import { createNewPosts, 
-    getAllPost, 
+import { 
+    createNewPosts, 
+    getAllPosts,
     updatePost, 
     deletePostById 
 } from './post.services.js';
 
+export const createPost = (req, res) => {
+    const { title, content, author } = req.body;
 
-export const  createPost = (req, res) => {
-
-    const { title, content, author, date } = req.body;
-    if (!title || !content || !author || !date) {
-        return res.status(404).json({
+    if (!title || !content || !author) {
+        return res.status(400).json({  
             success: 0,
             message: "All fields are required"
-        })
+        });
     }
-    const body = req.body
+
+    const body = { title, content, author };
     createNewPosts(body, (err, results) => {
         if (err) {
             return res.status(500).json({
                 success: 0,
                 message: "Database connection error"
             });
-        }else {
-            return res.status(200).json({
-                success: 1,
-                data: results
-            });
-        
         }
-
+        return res.status(200).json({
+            success: 1,
+            data: results
+        });
     });
-
-}
+};
 
 export const getPosts = (req, res) => {
-    getAllPost((err, results) => {
+    getAllPosts((err, results) => {  
         if (err) {
             return res.status(500).json({
                 success: 0,
@@ -46,11 +43,14 @@ export const getPosts = (req, res) => {
             data: results
         });
     });
-}
-
+};
 
 export const userUpdatePost = (req, res) => {
-    const body = req.body
+    const { id } = req.params; 
+    const body = req.body;
+
+    // ID to the body if needed for the update
+    body.id = id;
 
     updatePost(body, (err, results) => {
         if (err) {
@@ -60,10 +60,10 @@ export const userUpdatePost = (req, res) => {
             });
         }
 
-        if (!results){
-            res.status(404).json({
+        if (!results.affectedRows) { 
+            return res.status(404).json({
                 success: 0,
-                message: "not successful"
+                message: "Post not found or not updated"
             });
         }
         return res.status(200).json({
@@ -71,26 +71,29 @@ export const userUpdatePost = (req, res) => {
             data: results
         });
     });
-}
+};
 
+export const deletePost = (req, res) => {
+    const { id } = req.params; 
 
-
-
-export const deletePost =  (req, res) => {
-    const id = req.body.id;
-    deletePostById(id, (err, result) => {
+    deletePostById({ id }, (err, result) => {
         if (err) {
             return res.status(500).json({
                 success: 0,
-                message: "Database error while deting post"
+                message: "Database error while deleting post"
             });
         }
+        
+        if (!result.affectedRows) {
+            return res.status(404).json({
+                success: 0,
+                message: "Post not found"
+            });
+        }
+        
         return res.status(200).json({
-            success:1,
-            data:  "Post deleted succesfully"
+            success: 1,
+            message: "Post deleted successfully"
         });
-            
-        });
-    };
-
-    
+    });
+};
