@@ -2,14 +2,18 @@ import { createPost, getPosts, userUpdatePost, deletePost } from "./posts.contro
 import { Router } from "express";
 import { checkToken } from "../../auth/token_validation.js";
 
-
 const postRouter = Router(); 
 
-postRouter.post("/", createPost);
+// Create a new post
+postRouter.post("/", checkToken, createPost);
+
+// Get all posts
 postRouter.get("/", getPosts);
-postRouter.patch("/", userUpdatePost);
-postRouter.delete("/", checkToken, deletePost);
+
+// Update a specific post by ID
+postRouter.patch("/:id", checkToken, userUpdatePost);
+
+// Delete a specific post by ID
+postRouter.delete("/:id", checkToken, deletePost);
 
 export default postRouter;
-
-

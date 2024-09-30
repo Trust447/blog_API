@@ -129,19 +129,20 @@ const create = {
 * @param {Function} callBack - Callback function to handle the result or error.
 */
 getUserByEmail: async (data) => {
+    console.log('Querying for email:', data.email); // Log the email
     try {
         const [results] = await pool.query(
-            "SELECT * FROM registration WHERE email = ?",
+            "SELECT * FROM registration WHERE LOWER(email) = LOWER(?)",
             [data.email]
         );
 
-        // return null if no user is found
         return results.length > 0 ? results[0] : null;
     } catch (error) {
-        console.error('Database error:', error); // Log error for debugging
+        console.error('Database error:', error);
         throw error;
     }
 }
+
 };
 
 

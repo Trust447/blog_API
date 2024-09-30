@@ -13,16 +13,29 @@ dotenv.config();
 // console.log('port:', process.env.DB_PORT,);
 
 
+
 const swaggerDocument = YAML.load('./docs/swagger.yaml');
 
 const app = express();
 app.use(express.json());
+
+
 
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/users", userRouter); 
 app.use("/posts", postRouter);
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: 0,
+        message: "An unexpected error occurred!",
+        error: err.message
+    });
+});
+
 
 app.listen(process.env.SERVER_PORT, () => {
     console.log("server is running at localhost:", process.env.SERVER_PORT);

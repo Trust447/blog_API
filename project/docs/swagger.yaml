@@ -1,0 +1,525 @@
+openapi: 3.0.0
+info:
+  title: Blog API
+  description: API documentation for the Blog platform.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /users:
+    post:
+      summary: "Create a new user"
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                firstName:
+                  type: string
+                  example: "Trust"
+                lastName:
+                  type: string
+                  example: "Ihemebiri"
+                email:
+                  type: string
+                  example: "Trust.ihemebiri@example.com"
+                password:
+                  type: string
+                  example: "strongpassword123"
+      responses:
+        '201':
+          description: "User created successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+        '400':
+          description: "Bad request"
+        '500':
+          description: "Database connection error"
+
+    get:
+      summary: "Get all users"
+      tags:
+        - Users
+      responses:
+        '200':
+          description: "List of users"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        firstName:
+                          type: string
+                          example: "Trust"
+                        lastName:
+                          type: string
+                          example: "Ihemebiri"
+                        email:
+                          type: string
+                          example: "Trust.Ihemebiri@example.com"
+        '500':
+          description: "Database connection error"
+
+    patch:
+      summary: "Update user information"
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                firstName:
+                  type: string
+                  example: "Trust"
+                lastName:
+                  type: string
+                  example: "Ihemebiri"
+                email:
+                  type: string
+                  example: "Trust.Ihemebiri@example.com"
+                password:
+                  type: string
+                  example: "strongpassword123"
+      responses:
+        '200':
+          description: "User updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      firstName:
+                        type: string
+                        example: "Trust"
+                      lastName:
+                        type: string
+                        example: "Ihemebiri"
+                      email:
+                        type: string
+                        example: "Trust.Ihemebiri@example.com"
+        '404':
+          description: "User not found"
+        '500':
+          description: "Database connection error"
+
+    delete:
+      summary: "Delete a user"
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: "User deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: "User deleted successfully"
+        '500':
+          description: "Database connection error"
+
+  /users/{id}:
+    get:
+      summary: "Get user by ID"
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID of the user to retrieve"
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: "User data"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      firstName:
+                        type: string
+                        example: "Trust"
+                      lastName:
+                        type: string
+                        example: "Ihemebiri"
+                      email:
+                        type: string
+                        example: "Trust.Ihemebiri@example.com"
+        '404':
+          description: "User not found"
+        '500':
+          description: "Database connection error"
+
+  /users/login:
+    post:
+      summary: "User login"
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: "Trust.Ihemebiri@example.com"
+                password:
+                  type: string
+                  example: "strongpassword123"
+      responses:
+        '200':
+          description: "Login successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: "Login successful"
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '401':
+          description: "Invalid email or password"
+        '500':
+          description: "Database connection error"
+
+  /posts:
+    post:
+      summary: "Create a new post"
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "My First Post"
+                content:
+                  type: string
+                  example: "This is the content of the post."
+                author:
+                  type: string
+                  example: "Trust Ihemebiri"
+                date:
+                  type: string
+                  format: date
+                  example: "2024-09-29"
+              required:
+                - title
+                - content
+                - author
+                - date
+      responses:
+        '201':
+          description: "Post created successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      insertId:
+                        type: integer
+        '400':
+          description: "Bad Request - Missing fields"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+        '500':
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+
+    get:
+      summary: "Get all posts"
+      tags:
+        - Posts
+      responses:
+        '200':
+          description: "List of posts"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        title:
+                          type: string
+                          example: "My First Post"
+                        content:
+                          type: string
+                          example: "This is the content of the post."
+                        author:
+                          type: string
+                          example: "Trust Ihemebiri"
+                        date:
+                          type: string
+                          format: date
+                          example: "2024-09-29"
+        '500':
+          description: "Database connection error"
+
+  /posts/{id}:
+    get:
+      summary: "Get a post by ID"
+      tags:
+        - Posts
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID of the post to retrieve"
+      responses:
+        '200':
+          description: "Post data"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      title:
+                        type: string
+                        example: "My First Post"
+                      content:
+                        type: string
+                        example: "This is the content of the post."
+                      author:
+                        type: string
+                        example: "Trust Ihemebiri"
+                      date:
+                        type: string
+                        format: date
+                        example: "2024-09-29"
+        '404':
+          description: "Post not found"
+        '500':
+          description: "Database connection error"
+
+    put:
+      summary: "Update a post by ID"
+      tags:
+        - Posts
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID of the post to update"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Post Title"
+                content:
+                  type: string
+                  example: "This is the updated content."
+                author:
+                  type: string
+                  example: "Trust Ihemebiri"
+                date:
+                  type: string
+                  format: date
+                  example: "2024-09-29"
+      responses:
+        '200':
+          description: "Post updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: "Post updated successfully"
+        '404':
+          description: "Post not found"
+        '500':
+          description: "Database connection error"
+
+    delete:
+      summary: "Delete a post by ID"
+      tags:
+        - Posts
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID of the post to delete"
+      responses:
+        '200':
+          description: "Post deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: "Post deleted successfully"
+        '404':
+          description: "Post not found"
+        '500':
+          description: "Database connection error"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
