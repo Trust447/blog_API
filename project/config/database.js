@@ -1,4 +1,7 @@
 import mysql from "mysql2/promise";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 /**
  * Creates a MySQL connection pool using environment variables to configure the connection.
@@ -21,3 +24,4 @@ export default pool;
 
 // console.log('DB_USER:', process.env.DB_USER);
 // console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+// console.log('database:', process.env.MYSQL_DB,);

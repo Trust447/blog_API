@@ -61,7 +61,7 @@ const create = {
             const [results] = await pool.query(
                 `SELECT id, firstName, lastName, email, password 
                  FROM registration 
-                 WHERE id = ?`
+                 WHERE id = ?`,
                 [id]
             );
             return callBack(null, results[0]);
@@ -128,19 +128,22 @@ const create = {
 * @param {String} email - The email of the user to retrieve.
 * @param {Function} callBack - Callback function to handle the result or error.
 */
-    getuserByUserEmail: async (data, callBack) =>{
-        try{
-            const [results] = await pool.query(
-                "SELECT * FROM registration WHERE email = ?",
+getUserByEmail: async (data) => {
+    try {
+        const [results] = await pool.query(
+            "SELECT * FROM registration WHERE email = ?",
+            [data.email]
+        );
 
-                [email]
-            );
-            return callBack(null, results[0]);
-            }catch(error) {
-                return callBack(error);
-            }
-        }
-    };
+        // return null if no user is found
+        return results.length > 0 ? results[0] : null;
+    } catch (error) {
+        console.error('Database error:', error); // Log error for debugging
+        throw error;
+    }
+}
+};
+
 
 // Destructure and export functions to use in other parts of the application.
 export const { 
@@ -149,6 +152,6 @@ export const {
     getUserById, 
     updateUser, 
     deleteUser,
-    getuserByUserEmail,  
+    getUserByEmail,  
 } = create
 

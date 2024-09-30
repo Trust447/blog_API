@@ -2,15 +2,17 @@ import { createUser, getAllUsers, getUserByUserId, userUpdate, deleteUserById, l
 import { Router } from "express";
 import { checkToken } from "../../auth/token_validation.js";
 
+const userRouter = Router();
 
-
-
-const userRouter = Router(); 
+// Define routes
+userRouter.post("/login", login);
 userRouter.post("/", createUser);
-userRouter.get("/", getAllUsers);
+
+// Use userRouter for the following routes
+userRouter.get("/", checkToken, getAllUsers);
 userRouter.get("/:id", checkToken, getUserByUserId);
 userRouter.patch("/:id", checkToken, userUpdate);
-userRouter.delete("/:id", checkToken, deleteUserById);
-userRouter.post("/login", login);
+userRouter.delete("/:id", checkToken, deleteUserById);  
 
+// Export the router
 export default userRouter;
